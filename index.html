@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>피클노트 — Pickle Note</title>
+  <style>
+    @font-face {
+      font-family: 'Inter';
+      src: url('fonts/Inter.woff2') format('woff2');
+      font-weight: 100 900;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Material Symbols Outlined';
+      src: url('fonts/MaterialSymbolsOutlined.woff2') format('woff2');
+      font-weight: 100 700;
+      font-display: swap;
+    }
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal; font-style: normal; font-size: 24px;
+      line-height: 1; letter-spacing: normal; text-transform: none;
+      display: inline-block; white-space: nowrap; word-wrap: normal; direction: ltr;
+      font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin:0; padding:0; font-family:'Inter',sans-serif; width:480px; background:#fff; }
+
+    .extension-popup { width:480px; min-height:400px; }
+    .glass-panel {
+      background:rgba(17,25,40,.85); backdrop-filter:blur(20px);
+      border:1px solid rgba(255,255,255,.12); border-radius:2rem; padding:2rem;
+      box-shadow:0 25px 50px -12px rgb(0 0 0/.25); position:relative; overflow:hidden; color:#fff;
+    }
+
+    .blob-blue { position:absolute;top:-6rem;left:-6rem;width:18rem;height:18rem;background:rgba(37,99,235,.2);border-radius:9999px;filter:blur(48px);pointer-events:none; }
+    .blob-purple { position:absolute;bottom:-6rem;right:-6rem;width:18rem;height:18rem;background:rgba(147,51,234,.2);border-radius:9999px;filter:blur(48px);pointer-events:none; }
+
+    header { position:relative;z-index:10;margin-bottom:2.5rem;display:flex;align-items:center;justify-content:space-between; }
+    .header-left { display:flex;align-items:center;gap:.625rem; }
+    .header-icon { width:2.5rem;height:2.5rem;border-radius:.75rem;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);display:flex;align-items:center;justify-content:center; }
+    .header-icon .material-symbols-outlined { color:rgb(96,165,250);font-size:1.5rem; }
+    h1 { margin:0;font-size:1.25rem;font-weight:700;letter-spacing:-.025em;background:linear-gradient(to right,#fff,#9ca3af);-webkit-background-clip:text;background-clip:text;color:transparent; }
+    .settings-btn { width:2.5rem;height:2.5rem;border-radius:9999px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 150ms;text-decoration:none; }
+    .settings-btn:hover { background:rgba(255,255,255,.05); }
+    .settings-btn .material-symbols-outlined { color:rgb(156,163,175);font-size:1.25rem; }
+
+    main { position:relative;z-index:10; }
+
+    /* Status area */
+    .status-area { padding:1.5rem;border-radius:1.5rem;border:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;text-align:center;margin-bottom:1.25rem; }
+    .ping-wrapper { position:relative;display:flex;align-items:center;justify-content:center; }
+    .ping-ring { position:absolute;width:3rem;height:3rem;background:rgba(16,185,129,.2);border-radius:9999px;animation:ping 1s cubic-bezier(0,0,.2,1) infinite; }
+    .ping-dot { position:relative;width:1rem;height:1rem;background:rgb(16,185,129);border-radius:9999px;box-shadow:0 0 15px rgba(16,185,129,.5);animation:pulse-dot 2s cubic-bezier(.455,.03,.515,.955) infinite; }
+    #url-display { margin:0;font-size:1.5rem;font-weight:500;letter-spacing:-.025em;color:#fff; }
+    #url-sub { margin:.25rem 0 0;font-size:.875rem;font-weight:300;color:rgb(156,163,175); }
+
+    /* Button grid */
+    .btn-grid { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.5rem; }
+    .pill-chip { display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:1rem;border:1px solid rgba(255,255,255,.1);padding:.75rem .5rem;cursor:pointer;background:transparent;color:#fff;transition:all .2s; }
+    .pill-chip:hover { background:rgba(255,255,255,.05); }
+    .pill-chip:hover .pill-icon { transform:scale(1.1); }
+    .pill-chip.blue   { border-color:rgba(59,130,246,.3); }
+    .pill-chip.green  { border-color:rgba(34,197,94,.3); }
+    .pill-chip.purple { border-color:rgba(168,85,247,.3); }
+    .pill-chip.orange { border-color:rgba(249,115,22,.3); }
+    .pill-chip.blue:hover   { border-color:rgba(96,165,250,.5); }
+    .pill-chip.green:hover  { border-color:rgba(74,222,128,.5); }
+    .pill-chip.purple:hover { border-color:rgba(192,132,252,.5); }
+    .pill-chip.orange:hover { border-color:rgba(251,146,60,.5); }
+    .pill-icon { font-size:1.5rem;margin-bottom:.5rem;transition:transform 150ms cubic-bezier(.4,0,.2,1); }
+    .pill-chip.blue   .pill-icon { color:rgb(96,165,250); }
+    .pill-chip.green  .pill-icon { color:rgb(74,222,128); }
+    .pill-chip.purple .pill-icon { color:rgb(192,132,252); }
+    .pill-chip.orange .pill-icon { color:rgb(251,146,60); }
+    .pill-label { font-size:11px;font-weight:600;color:rgb(229,231,235); }
+    .pill-sub   { font-size:9px;color:rgb(107,114,128);margin-top:.125rem; }
+
+    /* Settings area */
+    .settings-area { display:none;position:relative;z-index:10;margin-bottom:1.5rem; }
+    .settings-area.visible { display:block; }
+    .settings-label { font-size:.75rem;font-weight:600;color:rgb(156,163,175);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem; }
+    .settings-input-row { display:flex;gap:.5rem; }
+    .settings-input { flex:1;padding:.625rem .75rem;border-radius:.75rem;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:.8rem;font-family:'Inter',sans-serif;outline:none;transition:border-color 150ms; }
+    .settings-input::placeholder { color:rgb(107,114,128); }
+    .settings-input:focus { border-color:rgba(59,130,246,.5); }
+    .settings-save-btn { padding:.625rem 1rem;border-radius:.75rem;border:1px solid rgba(59,130,246,.3);background:rgba(59,130,246,.1);color:rgb(96,165,250);font-size:.8rem;font-weight:600;cursor:pointer;transition:all 150ms; }
+    .settings-save-btn:hover { background:rgba(59,130,246,.2);border-color:rgba(96,165,250,.5); }
+
+    .notebook-badge { font-size:.7rem;margin-top:.5rem;padding:.25rem .5rem;border-radius:.5rem;display:inline-block; }
+    .badge-tab { color:rgb(74,222,128);background:rgba(74,222,128,.1); }
+    .badge-storage { color:rgb(250,204,21);background:rgba(250,204,21,.1); }
+    .badge-manual { color:rgb(96,165,250);background:rgba(96,165,250,.1); }
+    .badge-none { color:rgb(248,113,113);background:rgba(248,113,113,.1); }
+
+    /* Funnel: settings project card */
+    .funnel-card { display:flex;align-items:center;gap:.625rem;margin-top:.75rem;padding:.625rem .75rem;border-radius:.75rem;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);text-decoration:none;transition:all 150ms;cursor:pointer; }
+    .funnel-card:hover { background:rgba(59,130,246,.06);border-color:rgba(59,130,246,.2); }
+    .funnel-card-icon { flex-shrink:0;width:2rem;height:2rem;border-radius:.5rem;background:rgba(59,130,246,.1);display:flex;align-items:center;justify-content:center; }
+    .funnel-card-icon .material-symbols-outlined { font-size:1rem;color:rgb(96,165,250); }
+    .funnel-card-body { flex:1;min-width:0; }
+    .funnel-card-title { display:block;font-size:.75rem;font-weight:600;color:rgb(229,231,235);line-height:1.3; }
+    .funnel-card-desc { display:block;font-size:.65rem;color:rgb(107,114,128);line-height:1.3;margin-top:.125rem; }
+    .funnel-card-arrow { font-size:1rem;color:rgb(107,114,128);flex-shrink:0;transition:transform 150ms; }
+    .funnel-card:hover .funnel-card-arrow { transform:translateX(2px);color:rgb(96,165,250); }
+
+    /* Notebook list */
+    .notebook-list-area { position:relative;z-index:10;margin-bottom:1rem; }
+    .notebook-list-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem; }
+    .notebook-list-header .settings-label { margin-bottom:0; }
+    .notebook-list-refresh { background:none;border:none;cursor:pointer;padding:2px;display:flex;align-items:center; }
+    .notebook-list-refresh .material-symbols-outlined { font-size:1rem;color:rgb(156,163,175);transition:transform .3s; }
+    .notebook-list-refresh:hover .material-symbols-outlined { color:#fff;transform:rotate(180deg); }
+    .notebook-list { max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:.375rem; }
+    .notebook-list::-webkit-scrollbar { width:4px; }
+    .notebook-list::-webkit-scrollbar-thumb { background:rgba(255,255,255,.15);border-radius:2px; }
+
+    .nb-item { display:flex;align-items:center;gap:.5rem;padding:.5rem .625rem;border-radius:.625rem;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);transition:all 150ms;cursor:pointer; }
+    .nb-item:hover { background:rgba(255,255,255,.07); }
+    .nb-item.active { border-color:rgba(59,130,246,.4);background:rgba(59,130,246,.08); }
+    .nb-item-title { flex:1;font-size:.75rem;font-weight:500;color:rgb(229,231,235);overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .nb-item-date { font-size:.6rem;color:rgb(107,114,128);white-space:nowrap; }
+    .nb-item-del { background:none;border:none;cursor:pointer;padding:2px;display:flex;align-items:center;opacity:.4;transition:opacity 150ms; }
+    .nb-item-del:hover { opacity:1; }
+    .nb-item-del .material-symbols-outlined { font-size:.9rem;color:rgb(248,113,113); }
+    .nb-empty { font-size:.75rem;color:rgb(107,114,128);text-align:center;padding:.75rem; }
+
+    /* Options row */
+    .options-row { position:relative;z-index:10;display:flex;gap:.5rem;margin-bottom:.75rem; }
+    .option-group { flex:1;display:flex;align-items:center;gap:.375rem; }
+    .option-group label { font-size:.65rem;font-weight:600;color:rgb(107,114,128);white-space:nowrap;text-transform:uppercase;letter-spacing:.03em; }
+    .option-select { flex:1;padding:.375rem .5rem;border-radius:.5rem;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:.7rem;font-family:'Inter',sans-serif;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b7280'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .5rem center;padding-right:1.5rem; }
+    .option-select:focus { border-color:rgba(59,130,246,.5); }
+    .option-select option { background:rgb(17,25,40);color:#fff; }
+
+    /* Toggle */
+    .toggle-row { position:relative;z-index:10;display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem; }
+    .toggle-row input[type="checkbox"] { width:1rem;height:1rem;accent-color:rgb(59,130,246);cursor:pointer; }
+    .toggle-row label { font-size:.75rem;color:rgb(156,163,175);cursor:pointer;user-select:none; }
+
+    /* Status colors */
+    .status-error #url-display { color:rgb(248,113,113)!important; }
+    .status-error .ping-dot { background:rgb(248,113,113);box-shadow:0 0 15px rgba(248,113,113,.5); }
+    .status-error .ping-ring { background:rgba(248,113,113,.2); }
+    .status-progress #url-display { color:rgb(250,204,21)!important; }
+    .status-progress .ping-dot { background:rgb(250,204,21);box-shadow:0 0 15px rgba(250,204,21,.5); }
+    .status-progress .ping-ring { background:rgba(250,204,21,.2); }
+    .status-success #url-display { color:rgb(74,222,128)!important; }
+    .status-success .ping-dot { background:rgb(74,222,128);box-shadow:0 0 15px rgba(74,222,128,.5); }
+    .status-success .ping-ring { background:rgba(74,222,128,.2); }
+
+    footer { position:relative;z-index:10;margin-top:1rem;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;align-items:center;gap:.25rem; }
+    .footer-link { display:inline-flex;align-items:center;text-decoration:none;transition:opacity 150ms; }
+    .footer-link:hover { opacity:1; }
+    .footer-link:hover .footer-logo { opacity:1;transform:scale(1.03); }
+    .footer-logo { width:100px;margin-top:.25rem;opacity:.85;transition:all 150ms; }
+    .footer-credit { font-size:.65rem;color:rgb(107,114,128);letter-spacing:.02em;margin-top:.125rem; }
+
+    /* Custom button colors */
+    .pill-chip.teal   { border-color:rgba(20,184,166,.3); }
+    .pill-chip.teal:hover   { border-color:rgba(45,212,191,.5); }
+    .pill-chip.teal   .pill-icon { color:rgb(45,212,191); }
+    .pill-chip.pink   { border-color:rgba(236,72,153,.3); }
+    .pill-chip.pink:hover   { border-color:rgba(244,114,182,.5); }
+    .pill-chip.pink   .pill-icon { color:rgb(244,114,182); }
+    .pill-chip.cyan   { border-color:rgba(6,182,212,.3); }
+    .pill-chip.cyan:hover   { border-color:rgba(34,211,238,.5); }
+    .pill-chip.cyan   .pill-icon { color:rgb(34,211,238); }
+    .pill-chip.rose   { border-color:rgba(244,63,94,.3); }
+    .pill-chip.rose:hover   { border-color:rgba(251,113,133,.5); }
+    .pill-chip.rose   .pill-icon { color:rgb(251,113,133); }
+
+    /* Edit icon on custom buttons */
+    .pill-chip .pill-edit {
+      position:absolute;top:4px;right:4px;font-size:12px;color:rgba(255,255,255,.4);
+      cursor:pointer;opacity:0;transition:opacity 150ms;z-index:2;
+    }
+    .pill-chip:hover .pill-edit { opacity:1; }
+    .pill-chip .pill-edit:hover { color:#fff; }
+    .pill-chip { position:relative; }
+
+    /* Custom prompt modal */
+    .modal-backdrop {
+      display:none;position:fixed;inset:0;z-index:9999;
+      background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
+      align-items:center;justify-content:center;
+    }
+    .modal-backdrop.visible { display:flex; }
+    .modal-box {
+      width:420px;max-height:80vh;background:rgba(17,25,40,.95);
+      border:1px solid rgba(255,255,255,.15);border-radius:1.5rem;
+      padding:1.5rem;color:#fff;font-family:'Inter',sans-serif;
+      box-shadow:0 25px 50px rgba(0,0,0,.5);
+    }
+    .modal-title { margin:0 0 1rem;font-size:1rem;font-weight:700; }
+    .modal-textarea {
+      width:100%;min-height:180px;padding:.75rem;border-radius:.75rem;
+      border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);
+      color:#fff;font-size:.8rem;font-family:'Inter',sans-serif;
+      resize:vertical;outline:none;line-height:1.5;
+    }
+    .modal-textarea:focus { border-color:rgba(59,130,246,.5); }
+    .modal-textarea::placeholder { color:rgb(107,114,128); }
+    .modal-hint { font-size:.65rem;color:rgb(107,114,128);margin-top:.5rem; }
+    .modal-actions { display:flex;gap:.5rem;margin-top:1rem;justify-content:flex-end; }
+    .modal-btn {
+      padding:.5rem 1rem;border-radius:.625rem;border:1px solid rgba(255,255,255,.15);
+      background:rgba(255,255,255,.05);color:#fff;font-size:.8rem;font-weight:600;
+      cursor:pointer;transition:all 150ms;font-family:'Inter',sans-serif;
+    }
+    .modal-btn:hover { background:rgba(255,255,255,.1); }
+    .modal-btn.primary { border-color:rgba(59,130,246,.4);background:rgba(59,130,246,.15);color:rgb(96,165,250); }
+    .modal-btn.primary:hover { background:rgba(59,130,246,.25); }
+    .modal-btn.danger { border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.1);color:rgb(248,113,113); }
+    .modal-btn.danger:hover { background:rgba(248,113,113,.2); }
+    .modal-char-count { font-size:.6rem;color:rgb(107,114,128);text-align:right;margin-top:.25rem; }
+
+    @keyframes ping { 75%,100% { transform:scale(2);opacity:0; } }
+    @keyframes pulse-dot { 0% { transform:scale(.8);opacity:.5; } 50% { transform:scale(1.1);opacity:1; } 100% { transform:scale(.8);opacity:.5; } }
+  </style>
+</head>
+<body>
+  <div class="extension-popup glass-panel">
+    <div class="blob-blue"></div>
+    <div class="blob-purple"></div>
+
+    <header>
+      <div class="header-left">
+        <div class="header-icon">
+          <img src="icons/logo.png" alt="Pickle Note" style="width:100%;height:100%;object-fit:contain;border-radius:.5rem;" />
+        </div>
+        <h1>피클노트</h1>
+      </div>
+      <div style="display:flex;align-items:center;gap:.375rem;">
+        <a id="btn-open-nlm" href="https://notebooklm.google.com/" target="_blank" rel="noopener noreferrer"
+           class="settings-btn" title="NotebookLM 열기">
+          <span class="material-symbols-outlined">open_in_new</span>
+        </a>
+        <a id="btn-community" href="https://open.kakao.com/o/gNm1nnhi" target="_blank" rel="noopener noreferrer"
+           class="settings-btn" title="커뮤니티 (카카오톡)">
+          <span class="material-symbols-outlined">forum</span>
+        </a>
+        <button class="settings-btn">
+          <span class="material-symbols-outlined">settings</span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Settings: manual URL + notebook list -->
+      <div id="settings-area" class="settings-area">
+        <p class="settings-label">노트북 URL 직접 입력</p>
+        <div class="settings-input-row">
+          <input id="notebook-url-input" class="settings-input" type="text"
+                 placeholder="https://notebooklm.google.com/notebook/..." />
+          <button id="btn-save-url" class="settings-save-btn">저장</button>
+        </div>
+        <span id="notebook-badge" class="notebook-badge badge-none">확인 중...</span>
+
+        <!-- Funnel: Project card -->
+        <a href="https://open.kakao.com/o/gNm1nnhi"
+           target="_blank" rel="noopener noreferrer" class="funnel-card">
+          <div class="funnel-card-icon">
+            <span class="material-symbols-outlined">forum</span>
+          </div>
+          <div class="funnel-card-body">
+            <span class="funnel-card-title">피클AI 커뮤니티</span>
+            <span class="funnel-card-desc">피드백, 기능 요청, 사용 팁을 나눠보세요!</span>
+          </div>
+          <span class="material-symbols-outlined funnel-card-arrow">chevron_right</span>
+        </a>
+      </div>
+
+      <!-- Notebook list -->
+      <div id="notebook-list-area" class="notebook-list-area">
+        <div class="notebook-list-header">
+          <p class="settings-label">노트북 선택</p>
+          <button id="btn-refresh-notebooks" class="notebook-list-refresh" title="새로고침">
+            <span class="material-symbols-outlined">refresh</span>
+          </button>
+        </div>
+        <div id="notebook-list" class="notebook-list">
+          <p class="nb-empty">NotebookLM 페이지 방문 시 자동으로 목록이 갱신됩니다</p>
+        </div>
+      </div>
+
+      <div class="status-area" id="status-area">
+        <div class="ping-wrapper">
+          <div class="ping-ring"></div>
+          <div class="ping-dot"></div>
+        </div>
+        <div>
+          <p id="url-display">URL 확인 중...</p>
+          <p id="url-sub">컨텐츠 분석을 위해 현재 페이지 상태를 파악하고 있습니다</p>
+        </div>
+      </div>
+
+      <!-- Options -->
+      <div class="options-row">
+        <div class="option-group">
+          <label for="select-lang">언어</label>
+          <select id="select-lang" class="option-select">
+            <option value="ko">한국어</option>
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+            <option value="zh">中文</option>
+          </select>
+        </div>
+        <div class="option-group">
+          <label for="select-length">분량</label>
+          <select id="select-length" class="option-select">
+            <option value="short">간략</option>
+            <option value="medium" selected>기본</option>
+            <option value="detailed">상세</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <input type="checkbox" id="toggle-clear" checked />
+        <label for="toggle-clear">기존 소스 삭제 후 추가</label>
+      </div>
+
+      <div class="btn-grid">
+        <button id="btn-doc" class="pill-chip blue">
+          <span class="material-symbols-outlined pill-icon">article</span>
+          <span class="pill-label">전체 요약</span>
+          <span class="pill-sub">상세 분석</span>
+        </button>
+        <button id="btn-faq" class="pill-chip green">
+          <span class="material-symbols-outlined pill-icon">quiz</span>
+          <span class="pill-label">핵심 Q&A</span>
+          <span class="pill-sub">질답 추출</span>
+        </button>
+        <button id="btn-podcast" class="pill-chip purple">
+          <span class="material-symbols-outlined pill-icon">headphones</span>
+          <span class="pill-label">팟캐스트</span>
+          <span class="pill-sub">오디오 변환</span>
+        </button>
+        <button id="btn-full" class="pill-chip orange">
+          <span class="material-symbols-outlined pill-icon">description</span>
+          <span class="pill-label">원본 보기</span>
+          <span class="pill-sub">텍스트 확인</span>
+        </button>
+        <button id="btn-study" class="pill-chip cyan">
+          <span class="material-symbols-outlined pill-icon">school</span>
+          <span class="pill-label">학습 노트</span>
+          <span class="pill-sub">시험 대비</span>
+        </button>
+        <button id="btn-meeting" class="pill-chip rose">
+          <span class="material-symbols-outlined pill-icon">groups</span>
+          <span class="pill-label">회의록</span>
+          <span class="pill-sub">미팅 정리</span>
+        </button>
+        <button id="btn-custom1" class="pill-chip teal">
+          <span class="material-symbols-outlined pill-edit" id="edit-custom1" title="프롬프트 수정">edit</span>
+          <span class="material-symbols-outlined pill-icon">edit_note</span>
+          <span class="pill-label">커스텀 1</span>
+          <span class="pill-sub">프롬프트 설정</span>
+        </button>
+        <button id="btn-custom2" class="pill-chip pink">
+          <span class="material-symbols-outlined pill-edit" id="edit-custom2" title="프롬프트 수정">edit</span>
+          <span class="material-symbols-outlined pill-icon">edit_note</span>
+          <span class="pill-label">커스텀 2</span>
+          <span class="pill-sub">프롬프트 설정</span>
+        </button>
+      </div>
+
+      <!-- Custom prompt edit modal -->
+      <div id="custom-modal" class="modal-backdrop">
+        <div class="modal-box">
+          <h3 class="modal-title" id="modal-title">커스텀 프롬프트 편집</h3>
+          <textarea id="modal-textarea" class="modal-textarea"
+                    placeholder="NotebookLM에 전달할 프롬프트를 입력하세요.&#10;&#10;예: 이 영상의 핵심 내용을 표 형식으로 정리해주세요.&#10;&#10;※ 언어/분량 설정은 자동 적용되지 않습니다. 필요하면 프롬프트에 직접 명시하세요."
+                    maxlength="5000"></textarea>
+          <div class="modal-char-count"><span id="modal-char-current">0</span> / 5,000</div>
+          <p class="modal-hint">프롬프트는 chrome.storage.local에 저장됩니다. 언어·분량 옵션은 커스텀 프롬프트에 자동 적용되지 않으니 필요 시 직접 포함하세요.</p>
+          <div class="modal-actions">
+            <button id="modal-delete" class="modal-btn danger">삭제</button>
+            <button id="modal-cancel" class="modal-btn">취소</button>
+            <button id="modal-save" class="modal-btn primary">저장</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <a href="https://open.kakao.com/o/gNm1nnhi"
+         target="_blank" rel="noopener noreferrer" class="footer-link">
+        <img src="icons/logo.png" alt="Pickle Note" class="footer-logo" />
+      </a>
+      <span class="footer-credit">Made by 피클AI</span>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

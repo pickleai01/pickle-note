@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "피클노트 — YouTube → NotebookLM 1-Click 자동 요약",
+  "version": "2.0.0",
+  "description": "YouTube 영상을 1-Click으로 NotebookLM에 보내 핵심 요약·Q&A·학습노트·팟캐스트 스크립트를 자동 생성합니다. 8가지 모드 + 커스텀 프롬프트 지원.",
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://notebooklm.google.com/*"],
+      "js": ["selectors.js", "content.js"]
+    }
+  ],
+  "permissions": [
+    "tabs",
+    "scripting",
+    "activeTab",
+    "storage",
+    "notifications"
+  ],
+  "host_permissions": [
+    "*://*.youtube.com/*",
+    "*://notebooklm.google.com/*"
+  ]
+}
