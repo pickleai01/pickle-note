@@ -94,42 +94,39 @@ logo.webp           ← 원본 이미지 (아이콘만 필요)
 
 ### ZIP 생성 명령어 (검증 완료)
 
+**출력 경로**: `C:\jnk\1000_notebooklm\pickle-note\pickle-note-v2.0.0.zip`
+
 **Git Bash (검증 완료된 명령어):**
 ```bash
+PROJ=/c/jnk/1000_notebooklm
+OUT=$PROJ/pickle-note
+
 # 1. 릴리스 폴더에 배포 파일만 복사
-cd /c/jnk
-mkdir -p pickle-note-release/icons pickle-note-release/fonts
+rm -rf $OUT/pickle-note-release
+mkdir -p $OUT/pickle-note-release/icons $OUT/pickle-note-release/fonts
 
-cp /c/jnk/1000_notebooklm/manifest.json \
-   /c/jnk/1000_notebooklm/background.js \
-   /c/jnk/1000_notebooklm/selectors.js \
-   /c/jnk/1000_notebooklm/content.js \
-   /c/jnk/1000_notebooklm/popup.js \
-   /c/jnk/1000_notebooklm/index.html \
-   pickle-note-release/
+cp $PROJ/manifest.json $PROJ/background.js $PROJ/selectors.js \
+   $PROJ/content.js $PROJ/popup.js $PROJ/index.html \
+   $OUT/pickle-note-release/
 
-cp /c/jnk/1000_notebooklm/icons/icon-16.png \
-   /c/jnk/1000_notebooklm/icons/icon-48.png \
-   /c/jnk/1000_notebooklm/icons/icon-128.png \
-   /c/jnk/1000_notebooklm/icons/logo.png \
-   pickle-note-release/icons/
+cp $PROJ/icons/icon-16.png $PROJ/icons/icon-48.png \
+   $PROJ/icons/icon-128.png $PROJ/icons/logo.png \
+   $OUT/pickle-note-release/icons/
 
-cp /c/jnk/1000_notebooklm/fonts/Inter.woff2 \
-   /c/jnk/1000_notebooklm/fonts/MaterialSymbolsOutlined.woff2 \
-   pickle-note-release/fonts/
+cp $PROJ/fonts/Inter.woff2 $PROJ/fonts/MaterialSymbolsOutlined.woff2 \
+   $OUT/pickle-note-release/fonts/
 
 # 2. ZIP 생성
-rm -f pickle-note-v2.0.0.zip
-cd pickle-note-release
-powershell.exe -Command "Compress-Archive -Path 'C:\jnk\pickle-note-release\*' -DestinationPath 'C:\jnk\pickle-note-v2.0.0.zip' -Force"
+rm -f $OUT/pickle-note-v2.0.0.zip
+powershell.exe -Command "Compress-Archive -Path 'C:\jnk\1000_notebooklm\pickle-note\pickle-note-release\*' -DestinationPath 'C:\jnk\1000_notebooklm\pickle-note\pickle-note-v2.0.0.zip' -Force"
 
-# 결과: C:\jnk\pickle-note-v2.0.0.zip (3.9 MB)
+# 결과: C:\jnk\1000_notebooklm\pickle-note\pickle-note-v2.0.0.zip (3.9 MB)
 ```
 
 ### 버전 업데이트 시 ZIP 재생성
 ```bash
 # manifest.json version 수정 후:
-rm -rf /c/jnk/pickle-note-release
+rm -rf /c/jnk/1000_notebooklm/pickle-note/pickle-note-release
 # 위 명령어 다시 실행 (버전 번호만 변경)
 ```
 

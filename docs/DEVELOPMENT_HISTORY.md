@@ -181,7 +181,8 @@ withRetry(fn, label, maxRetries = 2, delay = 2000)
 
 #### Task 9: Chrome Web Store 준비
 - `manifest.json` → version "2.0.0"
-- SEO 최적화 타이틀: `"NotebookLM 퀵 요약기 — YouTube 1-Click 자동 분석"`
+- 최종 타이틀: `"피클노트 — YouTube 1시간 강의, 원클릭 자동 요약"`
+- 최종 설명: `"클릭 한 번이면 끝. YouTube 영상을 NotebookLM이 알아서 요약·Q&A·학습노트·팟캐스트까지 만들어줍니다. 무료."`
 - 아이콘 생성: `logo.png` → `icon-16.png`, `icon-48.png`, `icon-128.png` (sharp 라이브러리)
 - 개인정보처리방침: `docs/privacy-policy.html` (한국어 + English 이중 언어)
 - permissions 추가: `"notifications"`
