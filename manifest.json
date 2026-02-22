@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "피클노트 — YouTube → NotebookLM 1-Click 자동 요약",
+  "name": "피클노트 — YouTube 1시간 강의, 원클릭 자동 요약",
   "version": "2.0.0",
-  "description": "YouTube 영상을 1-Click으로 NotebookLM에 보내 핵심 요약·Q&A·학습노트·팟캐스트 스크립트를 자동 생성합니다. 8가지 모드 + 커스텀 프롬프트 지원.",
+  "description": "클릭 한 번이면 끝. YouTube 영상을 NotebookLM이 알아서 요약·Q&A·학습노트·팟캐스트까지 만들어줍니다. 무료.",
   "action": {
     "default_popup": "index.html",
     "default_icon": {
