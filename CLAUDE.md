@@ -102,6 +102,35 @@ docs/               — privacy-policy.html, DEVELOPMENT_HISTORY.md, plans/
 - **외부 AI 리뷰**: `docs/PERPLEXITY_REVIEW.md`, `docs/GROK_REVIEW.md`
 - **기능 명세서**: `docs/FEATURE_SPEC.md`
 
+## 작업 규칙 (반드시 지킬 것)
+
+### 코드 변경 후 필수 후속 작업
+1. **문서 업데이트** — 코드 변경 시 `docs/DEVELOPMENT_HISTORY.md`에 변경 내역 추가
+2. **ZIP 재생성** — 코드 변경 시 `pickle-note/pickle-note-v2.0.0.zip` 재생성 (항상 이 경로)
+3. **git 푸시** — 변경 완료 후 GitHub에 커밋 + 푸시
+4. **MEMORY 업데이트** — 새 문서/중요 변경 시 MEMORY.md에 링크 추가
+
+### 순서
+```
+코드 수정 → 문서 업데이트 → ZIP 재생성 → git commit + push
+```
+사용자가 개별 요청하지 않아도 위 순서를 자동으로 수행할 것.
+
+### 문서 작성 규칙
+- 모든 소통과 문서는 **한국어**
+- 새 문서 생성 시 관련 문서(CLAUDE.md, MEMORY.md)에 링크 추가
+- 외부 피드백/리뷰는 별도 MD 파일로 저장 (`docs/` 하위)
+- 계획/플랜 문서는 `docs/plans/`에 저장
+
+### ZIP 패키징 규칙
+- 출력 경로: **항상** `pickle-note/pickle-note-v2.0.0.zip` (버전에 맞게)
+- 포함: manifest.json, background.js, content.js, selectors.js, popup.js, index.html, icons/, fonts/, docs/privacy-policy.html
+- 제외: .claude/, docs/plans/, docs/marketing/, 전략 문서, .gitignore, capture/
+
+### 하지 말 것
+- Chrome Web Store 심사 대기 중 코드 변경 금지 (심사 통과 후 다음 버전에서)
+- 과잉 엔지니어링 금지 — 사용자 0명 단계에서 서버, 자동 보고 등 불필요
+
 ## 개발 컨벤션
 - 한국어 주석, 한/영 양쪽 텍스트 매칭
 - `HTMLTextAreaElement.prototype.value.set` 패턴으로 Angular controlled input 우회
