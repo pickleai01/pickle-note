@@ -93,10 +93,14 @@ docs/               — privacy-policy.html, DEVELOPMENT_HISTORY.md, plans/
 | `notebookUrl` | local | 수동 설정 노트북 URL |
 | `customPrompts` | local | `{ CUSTOM_1, CUSTOM_2 }` |
 
-## 플레이스홀더 (배포 전 교체 필수)
-| 플레이스홀더 | 파일 | 설명 |
-|---|---|---|
-| `{{PROJECT_URL}}` | index.html, content.js | 프로젝트 URL |
+## 배포 상태
+- **GitHub**: https://github.com/pickleai01/pickle-note
+- **개인정보처리방침**: https://pickleai01.github.io/pickle-note/docs/privacy-policy.html
+- **Chrome Web Store**: 심사 중 (1차 반려 후 `scripting` 권한 제거하여 재제출)
+- **ZIP**: `pickle-note/pickle-note-v2.0.0.zip`
+- **배포 히스토리**: `docs/DEVELOPMENT_HISTORY.md` 섹션 12 참조
+- **외부 AI 리뷰**: `docs/PERPLEXITY_REVIEW.md`, `docs/GROK_REVIEW.md`
+- **기능 명세서**: `docs/FEATURE_SPEC.md`
 
 ## 개발 컨벤션
 - 한국어 주석, 한/영 양쪽 텍스트 매칭

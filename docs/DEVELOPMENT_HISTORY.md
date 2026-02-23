@@ -499,12 +499,13 @@ C:\jnk\1000_notebooklm\
 | 권한 | 용도 |
 |---|---|
 | `tabs` | 현재 탭 URL 확인 (YouTube 영상 감지) |
-| `scripting` | NotebookLM 페이지에 자동화 스크립트 실행 |
 | `activeTab` | 활성 탭 정보 접근 |
 | `storage` | 로컬/세션 설정 저장 |
 | `notifications` | 자동화 완료 시스템 알림 |
 | `*://*.youtube.com/*` | YouTube 영상 URL 감지 및 제목 추출 |
 | `*://notebooklm.google.com/*` | NotebookLM 페이지 DOM 자동화 |
+
+> **참고**: `scripting` 권한은 Chrome Web Store 심사에서 미사용 위반으로 반려되어 제거됨 (12.2 참조)
 
 ---
 
@@ -538,5 +539,81 @@ C:\jnk\1000_notebooklm\
 
 ---
 
-*마지막 업데이트: 2026-02-21*
+## 12. Chrome Web Store 배포 히스토리
+
+### 12.1 배포 준비 (2026-02-22)
+
+| 단계 | 내용 | 상태 |
+|------|------|------|
+| 개발자 계정 등록 | Chrome Web Store 개발자 등록 ($5) | 완료 |
+| 비판매자 등록 | 한국 미지원 → 미국 선택, 비판매자로 등록 | 완료 |
+| ZIP 패키징 | `pickle-note/pickle-note-v2.0.0.zip` (3.9MB) | 완료 |
+| GitHub 배포 | https://github.com/pickleai01/pickle-note | 완료 |
+| GitHub Pages | 개인정보처리방침 호스팅 활성화 | 완료 |
+| 프로모션 에셋 | promo-small.html, promo-marquee.html, screenshot-1.html | 완료 |
+| 스토어 정보 입력 | 카테고리(생산성), 설명, 권한 설명, 개인정보 설정 | 완료 |
+
+### 12.2 심사 반려 및 수정 (2026-02-22)
+
+**반려 사유**: `scripting` 권한 미사용 위반
+
+```
+위반 참조 ID: Purple Potassium
+위반: 다음 권한을 요청하지만 사용하지는 않습니다 (scripting).
+정정 방법: 사용하지 않는 권한을 매니페스트 파일에서 삭제합니다.
+```
+
+**원인 분석**:
+- `manifest.json`에 `"scripting"` 권한이 포함되어 있었으나, 코드에서 `chrome.scripting` API를 전혀 사용하지 않음
+- Content Script는 `manifest.json`의 `content_scripts` 필드로 정적 주입 → `scripting` 권한 불필요
+
+**수정 내용**:
+```json
+// 변경 전
+"permissions": ["tabs", "scripting", "activeTab", "storage", "notifications"]
+
+// 변경 후
+"permissions": ["tabs", "activeTab", "storage", "notifications"]
+```
+
+**수정 파일**: `manifest.json`
+**재배포**: ZIP 재생성 후 Chrome Web Store에 재업로드 필요
+
+### 12.3 최종 권한 목록 (수정 후)
+
+| 권한 | 용도 | 코드 사용 위치 |
+|------|------|----------------|
+| `tabs` | 탭 URL 확인, 탭 생성 | popup.js, background.js |
+| `activeTab` | 활성 탭 정보 접근 | popup.js |
+| `storage` | 로컬/세션 설정 저장 | 전체 |
+| `notifications` | 자동화 완료 시스템 알림 | background.js |
+| `*://*.youtube.com/*` (host) | YouTube URL 감지 | popup.js |
+| `*://notebooklm.google.com/*` (host) | DOM 자동화 | content.js |
+
+### 12.4 외부 AI 제품 리뷰 (2026-02-22)
+
+경쟁력 검증을 위해 Perplexity와 Grok에 냉정한 평가 요청.
+
+| AI | 점수 | 핵심 지적 |
+|----|------|-----------|
+| Perplexity | 4/10 | DOM 의존 리스크, 타깃 세분화 필요, 해커톤 프로젝트 수준 |
+| Grok | 3/10 | 100K 경쟁자 존재, 기능 뻥튀기, 이미 늦은 구현 |
+
+상세: `docs/PERPLEXITY_REVIEW.md`, `docs/GROK_REVIEW.md`
+
+### 12.5 배포 관련 파일 정리
+
+| 파일/폴더 | 상태 | 설명 |
+|-----------|------|------|
+| `pickle-note/pickle-note-v2.0.0.zip` | 최신 | 배포용 ZIP (scripting 제거됨) |
+| `C:\jnk\pickle-note-release` | 삭제됨 | 구버전 배포 폴더 (불필요) |
+| `docs/DEPLOYMENT_GUIDE.md` | 유지 | 배포 절차 가이드 |
+| `docs/FEATURE_SPEC.md` | 유지 | 기능 명세서 (경쟁력 검증용) |
+| `docs/MARKETING_GUIDE.md` | 유지 | 마케팅/홍보 전략 |
+| `docs/PERPLEXITY_REVIEW.md` | 유지 | 외부 AI 평가 (Perplexity) |
+| `docs/GROK_REVIEW.md` | 유지 | 외부 AI 평가 (Grok) |
+
+---
+
+*마지막 업데이트: 2026-02-22*
 *작성: Claude (피클AI 개발 어시스턴트)*
